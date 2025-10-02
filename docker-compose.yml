@@ -1,0 +1,67 @@
+services:
+  postgres:
+    container_name: postgres-sql-bsn
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: book_social_network
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - spring-demo
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d book_social_network"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mail-dev:
+    container_name: mail-dev-bsn
+    image: maildev/maildev
+    ports:
+      - "1080:1080" # interfaz web
+      - "1025:1025" # puerto SMTP fake
+    networks:
+      - spring-demo
+
+  bsn-api:
+    container_name: bsn-api
+    build:
+      context: ./book-network
+      dockerfile: ../docker/backend/Dockerfile
+    ports:
+      - "8088:8088"
+    networks:
+      - spring-demo
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/book_social_network
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+
+  bsn-ui:
+    container_name: bsn-ui
+    image: bsn/bsn-ui:1.0.0
+    ports:
+      - 8080:80
+    networks:
+      - spring-demo
+    depends_on:
+      - bsn-api
+
+networks:
+    spring-demo:
+      driver: bridge
+
+
+volumes:
+  postgres:
+    driver: local
