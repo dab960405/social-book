@@ -1,20 +1,9 @@
-/* tslint:disable */
-/* eslint-disable */
 import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment'; // importar environment
 
-/**
- * Global configuration
- */
 @Injectable({
   providedIn: 'root',
 })
 export class ApiConfiguration {
-  rootUrl: string = 'http://localhost:8088/api/v1';
-}
-
-/**
- * Parameters for `ApiModule.forRoot()`
- */
-export interface ApiConfigurationParams {
-  rootUrl?: string;
+  rootUrl: string = environment.apiUrl;  // ahora usa environment
 }
