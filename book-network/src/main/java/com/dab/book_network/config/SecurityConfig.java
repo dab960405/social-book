@@ -33,28 +33,35 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ✅ habilita CORS con la configuración del bean más abajo
+                // ✅ Habilita el manejo de CORS usando el bean configurado abajo
                 .cors(withDefaults())
-                // ✅ deshabilita CSRF para APIs JWT
+
+                // ✅ Desactiva CSRF porque estamos usando JWT
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(req ->
-                        req.requestMatchers(
-                                        "/auth/**",
-                                        "/v2/api-docs",
-                                        "/v3/api-docs",
-                                        "/v3/api-docs/**",
-                                        "/swagger-resources",
-                                        "/swagger-resources/**",
-                                        "/configuration/ui",
-                                        "/configuration/security",
-                                        "/swagger-ui/**",
-                                        "/webjars/**",
-                                        "/swagger-ui.html"
-                                )
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated()
+
+                // ✅ Establece manejo de sesión sin estado (para APIs REST)
+                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+
+                // ✅ Configura reglas de autorización
+                .authorizeHttpRequests(req -> req
+                        .requestMatchers(
+                                "/api/v1/auth/**",    // incluye el prefijo del context-path
+                                "/auth/**",
+                                "/v2/api-docs",
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",
+                                "/swagger-resources",
+                                "/swagger-resources/**",
+                                "/configuration/ui",
+                                "/configuration/security",
+                                "/swagger-ui/**",
+                                "/webjars/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
+
+                // ✅ Configura el proveedor de autenticación y el filtro JWT
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -63,24 +70,32 @@ public class SecurityConfig {
 
     /**
      * ✅ Configuración global de CORS
-     * Permite peticiones desde tu frontend en Vercel y desde localhost (para desarrollo)
+     * Permite acceso desde Vercel y desde localhost para desarrollo.
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
+        // 🔹 Dominios permitidos
         configuration.setAllowedOrigins(List.of(
-                "https://social-book-frontend.vercel.app", // dominio del frontend (Vercel)
-                "http://localhost:4200"                   // desarrollo local
+                "https://social-book-frontend.vercel.app", // Frontend desplegado en Vercel
+                "http://localhost:4200"                    // Entorno local de desarrollo
         ));
 
+        // 🔹 Métodos y encabezados permitidos
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true); // necesario si usas cookies o Authorization headers
 
-        // aplica la configuración a todos los endpoints
+        // 🔹 Permitir credenciales (Authorization header, cookies, etc.)
+        configuration.setAllowCredentials(true);
+
+        // 🔹 Aplica valores por defecto útiles (p. ej. Access-Control-Max-Age)
+        configuration.applyPermitDefaultValues();
+
+        // 🔹 Aplica la configuración a todas las rutas
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 }
