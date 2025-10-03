@@ -31,6 +31,6 @@ COPY --from=build /app/target/book-network-*.war app.war
 EXPOSE 8088
 
 # Ejecutar el WAR como Spring Boot ejecutable
-ENTRYPOINT ["java", "-jar", "app.war"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
 
 
