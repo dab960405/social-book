@@ -33,7 +33,7 @@ services:
     container_name: bsn-api
     build:
       context: ./book-network
-      dockerfile: book-network/src/Dockerfile
+      dockerfile: Dockerfile
     ports:
       - "8088:8088"
     networks:
@@ -51,17 +51,17 @@ services:
     container_name: bsn-ui
     image: bsn/bsn-ui:1.0.0
     ports:
-      - 8080:80
+      - "8080:80"
     networks:
       - spring-demo
     depends_on:
       - bsn-api
 
 networks:
-    spring-demo:
-      driver: bridge
-
+  spring-demo:
+    driver: bridge
 
 volumes:
   postgres:
     driver: local
+
