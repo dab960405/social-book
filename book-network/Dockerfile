@@ -25,7 +25,7 @@ ENV SPRING_PROFILES_ACTIVE=$PROFILE \
     SPRING_DATASOURCE_PASSWORD=1234
 
 # Copiar el WAR generado desde el build stage
-COPY --from=build /app/target/book-network-*.war app.war
+COPY --from=build /app/target/book-network-*.war app.jar
 
 # Exponer el puerto que usa el backend
 EXPOSE 8088
