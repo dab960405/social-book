@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/railway} # Usa el valor de la variable, con un valor por defecto para desarrollo local
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    url: jdbc:postgresql://crossover.proxy.rlwy.net:57772/railway
+    username: postgres
+    password: JitDrjSsdgiNoEIYFJvzWigqfuPMysXM
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -11,10 +11,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect # dialect bajo properties.hibernate
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     database: postgresql
-
-# ... el resto de tu configuración
 
 application:
   security:
