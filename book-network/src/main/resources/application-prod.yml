@@ -1,8 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/book_network}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    url: ${SPRING_DATASOURCE_URL}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -17,7 +15,7 @@ spring:
 application:
   security:
     jwt:
-      secret-key: ${JWT_SECRET:defaultsecret}
+      secret-key: ${JWT_SECRET}
       expiration: 86400000
       refresh-token:
         expiration: 604800000
