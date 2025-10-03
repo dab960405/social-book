@@ -6,7 +6,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: update   # 👈 en prod quizás prefieras 'validate' en lugar de 'update'
     show-sql: false
     properties:
       hibernate:
