@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://crossover.proxy.rlwy.net:57772/railway
-    username: postgres
-    password: JitDrjSsdgiNoEIYFJvzWigqfuPMysXM
+    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
