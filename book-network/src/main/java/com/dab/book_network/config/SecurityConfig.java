@@ -1,5 +1,6 @@
 package com.dab.book_network.config;
 
+
 import com.dab.book_network.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -11,13 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -32,18 +27,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ✅ Habilita el manejo de CORS usando el bean configurado abajo
-                .cors(withDefaults())
-
-                // ✅ Desactiva CSRF porque estamos usando JWT
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // ✅ Establece manejo de sesión sin estado (para APIs REST)
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-
-                // ✅ Configura reglas de autorización
                 .authorizeHttpRequests(req -> req
-                        // 🔥 CRÍTICO: Permitir todas las peticiones OPTIONS (preflight)
                         .requestMatchers(
                                 org.springframework.http.HttpMethod.OPTIONS,
                                 "/**"
@@ -64,44 +50,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-
-                // ✅ Configura el proveedor de autenticación y el filtro JWT
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    /**
-     * ✅ Configuración de CORS
-     */
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        // 🔹 Orígenes permitidos
-        configuration.setAllowedOrigins(List.of(
-                "https://social-book-frontend.vercel.app",
-                "http://localhost:4200"
-        ));
-
-        // 🔹 Métodos explícitamente permitidos (incluye OPTIONS para preflight)
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-
-        // 🔹 Permite todos los headers
-        configuration.setAllowedHeaders(List.of("*"));
-
-        // 🔹 Headers expuestos
-        configuration.setExposedHeaders(List.of("Authorization", "X-Get-Header"));
-
-        // 🔹 Permitir credenciales
-        configuration.setAllowCredentials(true);
-
-        // 🔹 Tiempo de cache para preflight (1 hora)
-        configuration.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }
