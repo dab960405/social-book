@@ -69,33 +69,38 @@ public class SecurityConfig {
     }
 
     /**
-     * ✅ Configuración global de CORS
-     * Permite acceso desde Vercel y desde localhost para desarrollo.
+     * ✅ Configuración CORREGIDA de CORS
+     * Soluciona el error 403 en preflight requests (OPTIONS)
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 🔹 Dominios permitidos
-        configuration.setAllowedOrigins(List.of(
-                "https://social-book-frontend.vercel.app", // Frontend desplegado en Vercel
-                "http://localhost:4200"                    // Entorno local de desarrollo
+        // 🔹 Usa allowedOriginPatterns para mayor flexibilidad
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "https://social-book-frontend.vercel.app",
+                "http://localhost:4200"
         ));
 
-        // 🔹 Métodos y encabezados permitidos
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        // 🔹 Métodos explícitamente permitidos (incluye OPTIONS)
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
-        // 🔹 Permitir credenciales (Authorization header, cookies, etc.)
+        // 🔹 Headers permitidos
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With"));
+
+        // 🔹 Headers expuestos
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "X-Get-Header"));
+
+        // 🔹 Permitir credenciales
         configuration.setAllowCredentials(true);
 
-        // 🔹 Aplica valores por defecto útiles (p. ej. Access-Control-Max-Age)
-        configuration.applyPermitDefaultValues();
+        // 🔹 Tiempo de cache para preflight (1 hora)
+        configuration.setMaxAge(3600L);
 
-        // 🔹 Aplica la configuración a todas las rutas
+        // 🔹 IMPORTANTE: NO usar applyPermitDefaultValues() porque sobrescribe tu configuración
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
 }
