@@ -15,7 +15,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -45,7 +44,7 @@ public class SecurityConfig {
                 // ✅ Configura reglas de autorización
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(
-                                "/api/v1/auth/**",    // incluye el prefijo del context-path
+                                "/api/v1/auth/**",
                                 "/auth/**",
                                 "/v2/api-docs",
                                 "/v3/api-docs",
@@ -69,35 +68,32 @@ public class SecurityConfig {
     }
 
     /**
-     * ✅ Configuración CORREGIDA de CORS
-     * Soluciona el error 403 en preflight requests (OPTIONS)
+     * ✅ Configuración de CORS corregida
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 🔹 Usa allowedOriginPatterns para mayor flexibilidad
-        configuration.setAllowedOriginPatterns(Arrays.asList(
+        // 🔹 Orígenes permitidos (cambiado de allowedOriginPatterns a allowedOrigins)
+        configuration.setAllowedOrigins(List.of(
                 "https://social-book-frontend.vercel.app",
                 "http://localhost:4200"
         ));
 
-        // 🔹 Métodos explícitamente permitidos (incluye OPTIONS)
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        // 🔹 Métodos explícitamente permitidos (incluye OPTIONS para preflight)
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
-        // 🔹 Headers permitidos
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With"));
+        // 🔹 Permite todos los headers
+        configuration.setAllowedHeaders(List.of("*"));
 
         // 🔹 Headers expuestos
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "X-Get-Header"));
+        configuration.setExposedHeaders(List.of("Authorization", "X-Get-Header"));
 
         // 🔹 Permitir credenciales
         configuration.setAllowCredentials(true);
 
         // 🔹 Tiempo de cache para preflight (1 hora)
         configuration.setMaxAge(3600L);
-
-        // 🔹 IMPORTANTE: NO usar applyPermitDefaultValues() porque sobrescribe tu configuración
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
