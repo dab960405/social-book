@@ -43,6 +43,11 @@ public class SecurityConfig {
 
                 // ✅ Configura reglas de autorización
                 .authorizeHttpRequests(req -> req
+                        // 🔥 CRÍTICO: Permitir todas las peticiones OPTIONS (preflight)
+                        .requestMatchers(
+                                org.springframework.http.HttpMethod.OPTIONS,
+                                "/**"
+                        ).permitAll()
                         .requestMatchers(
                                 "/api/v1/auth/**",
                                 "/auth/**",
@@ -68,13 +73,13 @@ public class SecurityConfig {
     }
 
     /**
-     * ✅ Configuración de CORS corregida
+     * ✅ Configuración de CORS
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 🔹 Orígenes permitidos (cambiado de allowedOriginPatterns a allowedOrigins)
+        // 🔹 Orígenes permitidos
         configuration.setAllowedOrigins(List.of(
                 "https://social-book-frontend.vercel.app",
                 "http://localhost:4200"
